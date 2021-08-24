@@ -4,6 +4,11 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const mongoose = require('mongoose');
+const session = require('express-session');
+require('dotenv').config();
+const MongoStore = require("connect-mongo");
+const flash = require('connect-flash');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 mongoose.connect('mongodb://localhost/authenticationDemo',(err)=> {
@@ -20,6 +25,16 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(session({
+  secret : process.env.SECRET,
+  resave : false,
+  saveunitialized :false,
+  store: MongoStore.create({
+    mongoUrl: 'mongodb://localhost/authenticationDemo'
+  })
+
+}));
+app.use(flash());
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
